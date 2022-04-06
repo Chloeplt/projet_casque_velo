@@ -1,15 +1,24 @@
-# -*- coding: utf-8 -*-
-"""
-Spyder Editor
-
-This is a temporary script file.
-"""
 import cv2
 import numpy as np
 
-path="C:\eye.flv" #create a path to locate the file
+path="C:/CasqueVelo/test_13.mp4" #create a path to locate the file
 cap = cv2.VideoCapture(path) #Call cv2.VideoCapture to display the video
 
+def calculate_dist(cx, cy, x, y):
+    a=np.array([x-cx, y-cy])
+    return a
+
+def center_eyes(x, y, n, contours):
+    l=np.zeros((n, n))
+    for i in len(l):
+        while l(i)==0:
+            for cnt in contours:
+                (x, y ,w, h) = cv2.boundingRect(cnt)
+                l[:,:]=[x+w/2, y+h/2]
+            break
+    return 
+    
+    
 while True:
     #ret is a boolean variable that returns true if the frame is available
     #frame is an image array vector captured based on the default frames per second defined explicitly or implicitly
@@ -23,13 +32,13 @@ while True:
 
     gray = cv2.GaussianBlur(gray, (7,7), 0)   #cv2.gaussianblur() is used to apply Gaussian Smoothing on the input source image
     rows, cols,_= frame.shape   #we save the shape of the frame 
-    _, threshold = cv2.threshold(gray, 20, 255, cv2.THRESH_BINARY_INV)   #cv2.threshold is used to apply the binarization of the video
+    _, threshold = cv2.threshold(gray, 15, 255, cv2.THRESH_BINARY_INV)   #cv2.threshold is used to apply the binarization of the video
     
     contours ,_ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) #cv2.findContours is used to create a curve joining all the continuous points along the boundary
     contours= sorted(contours, key=lambda x: cv2.contourArea(x), reverse=True)   #sorted function sorts the elements of the contours in a specific order and returns it as a list.
     #cv2.contourArea(x) is the lenght of the contours area
     #finding contours is like finding white object from black background, that's why we use the threshold.
-    print(contours)
+    #print(contours)
     
     for cnt in contours:
         (x, y ,w, h) = cv2.boundingRect(cnt) #cv2 boundingrect() is used to save the x and y cordinates, the w=width and h=high of the rectangle
@@ -38,8 +47,12 @@ while True:
         cv2.rectangle(frame, (x,y), (x+w, y+h), (0, 255, 0), 1) #draw a rectangle arround the contours
         
         #create a 2-axis system with a center in the midle of the previous rectangle
-        cv2.line(frame, (x+int(w/2), 0), (x+int(w/2), rows), (255,0,0), 1) 
-        cv2.line(frame, (0, y+int(h/2)), (cols , y+int(h/2)), (255,0,0), 1)
+        x1 = cv2.line(frame, (x+int(w/2), 0), (x+int(w/2), rows), (255,0,0), 1) 
+        y1 = cv2.line(frame, (0, y+int(h/2)), (cols , y+int(h/2)), (255,3,0), 1)
+        
+        cx, cy = center_eyes(x+int(w/2), y+int(h/2))
+        print(x+int(w/2), y+int(h/2))
+        print(calculate_dist(cx, cy, x+int(w/2), y+int(h/2)) )
         break
 
     #display the frame, the threshold and the gray 
